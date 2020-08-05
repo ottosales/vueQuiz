@@ -1,4 +1,5 @@
 # quiz
+A basic quiz site using Vue.js to practice what I've studied in the last couple days. It was done through the tutorial available at https://youtu.be/4deVCNJq3qc.
 
 ## Project setup
 ```
