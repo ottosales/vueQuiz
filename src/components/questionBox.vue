@@ -1,6 +1,6 @@
 <template>
     <div class="question-box-container">
-        <b-jumbotron class="mt-5">
+        <b-jumbotron class="mt-5'">
             <template v-slot:lead>
                 {{ currentQuestion.question }}
             </template>
@@ -8,7 +8,8 @@
             <hr class="my-4">
 
             <b-list-group class="mb-4">
-                <b-list-group-item v-for="(answer, index) in answers" :key="index">
+                <b-list-group-item v-for="(answer, index) in answers" :key="index"
+                @click="selectAnswer(index)">
                     {{ answer }}
                 </b-list-group-item>
             </b-list-group>
@@ -29,7 +30,21 @@
             answers(){
                 let answers = [...this.currentQuestion.incorrect_answers]
                 answers.push(this.currentQuestion.correct_answer)
+                this.shuffle(answers)
                 return answers
+            }
+        },
+        methods:{
+            shuffle(answers){
+                for(let i = answers.length - 1; i > 0; i--){
+                    const j = Math.floor(Math.random() * i)
+                    const temp = answers[i]
+                    answers[i] = answers[j]
+                    answers[j] = temp
+                }
+            },
+            selectAnswer(index){
+                console.log(index)
             }
         }
     }
