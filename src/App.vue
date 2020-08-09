@@ -10,6 +10,7 @@
           <questionBox
             v-if="questions.length"
             :currentQuestion="questions[index]"
+            :back="back"
             :next="next"
             :increment="increment"
           />
@@ -40,15 +41,20 @@ export default {
     }
   },
   methods:{
+    back(){
+      if(this.index > 0)
+        this.index--
+    },
     next(){
-      this.index++
+      if(this.index < 10)
+        this.index++
+    },
+    increment(isCorrect){
+      if(isCorrect){
+        this.numCorrect++
+      }
+      this.numTotal++
     }
-  },
-  increment(isCorrect){
-    if(isCorrect)
-      this.numCorrect++
-    this.numTotal++
-
   },
   mounted: function(){
     fetch("https://opentdb.com/api.php?amount=10&category=15&type=multiple", {

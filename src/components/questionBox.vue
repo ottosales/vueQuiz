@@ -2,24 +2,35 @@
     <div class="question-box-container">
         <b-jumbotron class="mt-5'">
             <template v-slot:lead>
-                {{ currentQuestion.question }}
+                <h3 v-html="currentQuestion.question"></h3>
             </template>
 
             <hr class="my-4">
 
             <b-list-group class="mb-4">
-                <b-list-group-item v-for="(answer, index) in answers" 
+                <b-list-group-item v-for="(answer, index) in shuffledAnswers" 
                 :key="index"
                 @click="selectAnswer(index)"
-                :class="[selectedIndex === index ? 'selected' : '']">
-                    {{ answer }}
+                :class="answerClass(index)">
+                    <b>{{ answer }}</b>
                 </b-list-group-item>
             </b-list-group>
 
-            <b-button class="mr-1" variant="primary"
-                v-on:click="submitAnswer"
-            >Submit</b-button>
-            <b-button class="ml-1" @click="next" variant="success" href="#">Next Question</b-button>
+            <b-row>
+                <b-col>
+                    <b-button class="mb-3" variant="primary"
+                    v-on:click="submitAnswer"
+                    :disabled="selectedIndex === null || answered"
+                    >Submit</b-button>
+                </b-col>
+            </b-row>
+
+            <b-button class="mr-1" @click="back" variant="success" href="#">&lt;&lt;</b-button>
+           
+            <b-button class="ml-1" @click="next" variant="success" href="#">&gt;&gt;</b-button>
+
+            
+
         </b-jumbotron>
     </div>
 </template>
@@ -28,47 +39,82 @@
     export default{
         props: {
             currentQuestion: Object,
+            back: Function,
             next: Function,
             increment: Function
+        },
+        data: function(){
+            return{
+                selectedIndex: null,
+                correctAnswer: null,
+                correctIndex: null,
+                shuffledAnswers: [],
+                answered: false
+            }
         },
         computed:{
             answers(){
                 let answers = [...this.currentQuestion.incorrect_answers]
                 answers.push(this.currentQuestion.correct_answer)
-                this.shuffle(answers)
                 return answers
             }
         },
-        data: function(){
-            return{
-                selectedIndex: null
+        watch:{
+            currentQuestion: {
+                immediate: true,
+                handler(){
+                    this.selectedIndex = null
+                    this.correctAnswer = null
+                    this.selectIndex = null
+                    this.shuffleAnswers()
+                    this.answered = false
+                }
             }
         },
         methods:{
-            shuffle(answers){
-                this.currentQuestion.correct_index = 3
+            shuffleAnswers(){
+                let answers = [...this.currentQuestion.incorrect_answers, this.currentQuestion.correct_answer]
+                
                 for(let i = answers.length - 1; i > 0; i--){
                     const j = Math.floor(Math.random() * i)
                     const temp = answers[i]
                     answers[i] = answers[j]
                     answers[j] = temp
-                    if(answers[i] == this.currentQuestion.correct_answer)
-                        this.currentQuestion.correct_index = i
-                    else if(answers[j] == this.currentQuestion.correct_answer)
-                        this.currentQuestion.correct_index = j
                 }
-                
+                this.shuffledAnswers = answers
+                this.correctIndex = this.shuffledAnswers.indexOf(this.currentQuestion.correct_answer)
             },
             selectAnswer(index){
-                this.selectedIndex = index                
+                if(!this.answered){
+                    if(this.selectedIndex === index)
+                        this.selectedIndex = null
+                    else
+                        this.selectedIndex = index
+                }
             },
             submitAnswer(){
                 let isCorrect = false
 
-                if(this.selectedIndex === this.currentQuestion.correct_index)
+                if(this.selectedIndex === this.correctIndex)
                     isCorrect = true
 
+                this.answered = true
+
                 this.increment(isCorrect)
+            },
+            answerClass(index){
+                let answerClass = ''
+
+                if(!this.answered && this.selectedIndex === index)
+                    answerClass = 'selected'
+
+                else if(this.answered && this.correctIndex === index)
+                    answerClass = 'correct'
+
+                else if(this.answered && this.selectedIndex === index && this.correctIndex != index)
+                    answerClass = 'incorrect'
+
+                return answerClass
             }
         }
     }
@@ -85,12 +131,26 @@
     background-color: lightblue;
 }
 
+.selected:hover{
+    background-color: lightblue;
+}
+
 .correct{
     background-color: lightgreen;
 }
 
+.correct:hover{
+    background-color: lightgreen;
+}
+
 .incorrect{
-    background-color: red;
+    background-color: #ff0033;
+    color: #EEE;
+}
+
+.incorrect:hover{
+    background-color: #ff0033;
+    color: #EEE
 }
 
 </style>
