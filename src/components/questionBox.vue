@@ -25,9 +25,9 @@
                 </b-col>
             </b-row>
 
-            <b-button class="mr-1" @click="back" variant="success" href="#">&lt;&lt;</b-button>
+            <b-button class="mr-2" @click="back" variant="success" href="#">&lt;&lt;</b-button>
            
-            <b-button class="ml-1" @click="next" variant="success" href="#">&gt;&gt;</b-button>
+            <b-button class="ml-2" @click="next" variant="success" href="#">&gt;&gt;</b-button>
 
             
 
