@@ -3,6 +3,7 @@
     <Header
       :numCorrect="numCorrect"
       :numTotal="numTotal"
+      :highScore="highScore"
     />
     <b-container class="bv-example-row">
       <b-row>
@@ -16,6 +17,7 @@
             :input="questionInput[index]"
             :numCorrect="numCorrect"
             :numTotal="numTotal"
+            :playAgain="playAgain"
           />
         </b-col>
       </b-row>
@@ -41,10 +43,28 @@ export default {
       index: 0,
       numCorrect: 0,
       numTotal: 0,
-      questionInput:[]
+      questionInput:[],
+      highScore: 0
     }
   },
   methods:{
+    startGame(){
+      this.questions = []
+      this.index = 0
+      this.numCorrect = 0
+      this.numTotal = 0
+      this.questionInput = []
+      this.startMemory()
+      fetch("https://opentdb.com/api.php?amount=10&category=15&type=multiple", {
+        method: "get"
+      })
+        .then((response) => {
+          return response.json()
+        })
+        .then((jsonData) => {
+          this.questions = jsonData.results
+        })
+    },
     back(){
       if(this.index > 0)
         this.index--
@@ -58,6 +78,9 @@ export default {
         this.numCorrect++
       }
       this.numTotal++
+      if(this.numTotal === 10){
+        this.saveHighScore()
+      }
     },
     startMemory(){
       for(var i = 0; i < 10; i++){
@@ -67,21 +90,18 @@ export default {
           shuffled: false,
           shuffledAnswers: [],
           answered: false
-      })
+        })
       }
+    },
+    saveHighScore(){
+      this.highScore = this.numCorrect > this.highScore ? this.numCorrect : this.highScore
+    },
+    playAgain(){
+      this.startGame()
     }
   },
   mounted: function(){
-    this.startMemory()
-    fetch("https://opentdb.com/api.php?amount=10&category=15&type=multiple", {
-      method: "get"
-    })
-      .then((response) => {
-        return response.json()
-      })
-      .then((jsonData) => {
-        this.questions = jsonData.results
-      })
+    this.startGame()
   }
 }
 </script>

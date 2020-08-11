@@ -26,14 +26,15 @@
                     </b-col>
                 </b-row>
 
-                <b-button class="mr-2" @click="back" variant="success" href="#">&lt;&lt;</b-button>
-                <b-button class="ml-2" @click="next" variant="success" href="#">&gt;&gt;</b-button>
+                <b-button class="mr-2" @click="back" variant="success" >&lt;&lt;</b-button>
+                <b-button class="ml-2" @click="next" variant="success" >&gt;&gt;</b-button>
 
             </b-jumbotron>
         </div>
 
         <div v-else>
             <h2>Congratulations! You got {{numCorrect}} questions out of 10!</h2>
+            <b-button class="mt-4" @click="playAgain" variant="primary">Play Again!</b-button>
         </div>
 
 
@@ -49,7 +50,8 @@
             increment: Function,
             input: Object,
             numCorrect: Number,
-            numTotal: Number
+            numTotal: Number,
+            playAgain: Function
 
         },
         computed:{
