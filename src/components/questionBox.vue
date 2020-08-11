@@ -1,37 +1,42 @@
 <template>
     <div class="question-box-container">
-        <b-jumbotron class="mt-5'">
-            <template v-slot:lead>
-                <h3 v-html="currentQuestion.question"></h3>
-            </template>
+        <div v-if="numTotal < 10">
+            <b-jumbotron class="mt-5'">
+                <template v-slot:lead>
+                    <h3 v-html="currentQuestion.question"></h3>
+                </template>
 
-            <hr class="my-4">
+                <hr class="my-4">
 
-            <b-list-group class="mb-4">
-                <b-list-group-item v-for="(answer, index) in shuffledAnswers" 
-                :key="index"
-                @click="selectAnswer(index)"
-                :class="answerClass(index)">
-                    <b>{{ answer }}</b>
-                </b-list-group-item>
-            </b-list-group>
+                <b-list-group class="mb-4">
+                    <b-list-group-item v-for="(answer, index) in this.input.shuffledAnswers" 
+                    :key="index"
+                    @click="selectAnswer(index)"
+                    :class="answerClass(index)">
+                        <b v-html="answer"></b>
+                    </b-list-group-item>
+                </b-list-group>
 
-            <b-row>
-                <b-col>
-                    <b-button class="mb-3" variant="primary"
-                    v-on:click="submitAnswer"
-                    :disabled="selectedIndex === null || answered"
-                    >Submit</b-button>
-                </b-col>
-            </b-row>
+                <b-row>
+                    <b-col>
+                        <b-button class="mb-3" variant="primary"
+                        v-on:click="submitAnswer"
+                        :disabled="this.input.selectedIndex === null || this.input.answered"
+                        >Submit</b-button>
+                    </b-col>
+                </b-row>
 
-            <b-button class="mr-2" @click="back" variant="success" href="#">&lt;&lt;</b-button>
-           
-            <b-button class="ml-2" @click="next" variant="success" href="#">&gt;&gt;</b-button>
+                <b-button class="mr-2" @click="back" variant="success" href="#">&lt;&lt;</b-button>
+                <b-button class="ml-2" @click="next" variant="success" href="#">&gt;&gt;</b-button>
 
-            
+            </b-jumbotron>
+        </div>
 
-        </b-jumbotron>
+        <div v-else>
+            <h2>Congratulations! You got {{numCorrect}} questions out of 10!</h2>
+        </div>
+
+
     </div>
 </template>
 
@@ -41,16 +46,11 @@
             currentQuestion: Object,
             back: Function,
             next: Function,
-            increment: Function
-        },
-        data: function(){
-            return{
-                selectedIndex: null,
-                correctAnswer: null,
-                correctIndex: null,
-                shuffledAnswers: [],
-                answered: false
-            }
+            increment: Function,
+            input: Object,
+            numCorrect: Number,
+            numTotal: Number
+
         },
         computed:{
             answers(){
@@ -63,11 +63,10 @@
             currentQuestion: {
                 immediate: true,
                 handler(){
-                    this.selectedIndex = null
-                    this.correctAnswer = null
-                    this.selectIndex = null
-                    this.shuffleAnswers()
-                    this.answered = false
+                    if(!this.input.shuffled){
+                        this.shuffleAnswers()
+                        this.input.shuffled = true
+                    }
                 }
             }
         },
@@ -81,37 +80,37 @@
                     answers[i] = answers[j]
                     answers[j] = temp
                 }
-                this.shuffledAnswers = answers
-                this.correctIndex = this.shuffledAnswers.indexOf(this.currentQuestion.correct_answer)
+                this.input.shuffledAnswers = answers
+                this.input.correctIndex = this.input.shuffledAnswers.indexOf(this.currentQuestion.correct_answer)
             },
             selectAnswer(index){
-                if(!this.answered){
-                    if(this.selectedIndex === index)
-                        this.selectedIndex = null
+                if(!this.input.answered){
+                    if(this.input.selectedIndex === index)
+                        this.input.selectedIndex = null
                     else
-                        this.selectedIndex = index
+                        this.input.selectedIndex = index
                 }
             },
             submitAnswer(){
                 let isCorrect = false
 
-                if(this.selectedIndex === this.correctIndex)
+                if(this.input.selectedIndex === this.input.correctIndex)
                     isCorrect = true
 
-                this.answered = true
+                this.input.answered = true
 
                 this.increment(isCorrect)
             },
             answerClass(index){
                 let answerClass = ''
 
-                if(!this.answered && this.selectedIndex === index)
+                if(!this.input.answered && this.input.selectedIndex === index)
                     answerClass = 'selected'
 
-                else if(this.answered && this.correctIndex === index)
+                else if(this.input.answered && this.input.correctIndex === index)
                     answerClass = 'correct'
 
-                else if(this.answered && this.selectedIndex === index && this.correctIndex != index)
+                else if(this.input.answered && this.input.selectedIndex === index && this.input.correctIndex != index)
                     answerClass = 'incorrect'
 
                 return answerClass

@@ -13,6 +13,9 @@
             :back="back"
             :next="next"
             :increment="increment"
+            :input="questionInput[index]"
+            :numCorrect="numCorrect"
+            :numTotal="numTotal"
           />
         </b-col>
       </b-row>
@@ -37,7 +40,8 @@ export default {
       questions: [],
       index: 0,
       numCorrect: 0,
-      numTotal: 0
+      numTotal: 0,
+      questionInput:[]
     }
   },
   methods:{
@@ -54,9 +58,21 @@ export default {
         this.numCorrect++
       }
       this.numTotal++
+    },
+    startMemory(){
+      for(var i = 0; i < 10; i++){
+        this.questionInput.push({
+          selectedIndex: null,
+          correctIndex: null,
+          shuffled: false,
+          shuffledAnswers: [],
+          answered: false
+      })
+      }
     }
   },
   mounted: function(){
+    this.startMemory()
     fetch("https://opentdb.com/api.php?amount=10&category=15&type=multiple", {
       method: "get"
     })
